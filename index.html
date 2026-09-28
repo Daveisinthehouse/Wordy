@@ -18,7 +18,7 @@ footer{text-align:center;color:var(--muted);font-size:12px;margin-top:13px}@medi
 <body><div class="wrap">
 <header><h1>W<span>o</span>rdy</h1><p class="tag">Change the word to find the target.</p></header>
 <section class="card">
-<div class="info"><div><div class="label">Start</div><div class="word" id="startWord"></div></div><div><div class="label">Target</div><div class="word" id="targetWord"></div></div></div>
+<div class="info"><div><div><div class="label">Target</div><div class="word" id="targetWord"></div></div></div></div>
 <div id="board"></div>
 <div class="controls"><div id="hint" class="hint">Enter any five-letter word.</div><div id="keyboard" class="keyboard"></div>
 <div class="actions"><button class="action" id="newGame">New game</button><button class="action primary" id="howTo">How to play</button></div></div>
@@ -41,8 +41,8 @@ function findPuzzle(){
   }
   return{start:"cold",target:"warm",path:["cold","cord","card","ward","warm"]}
 }
-function choosePuzzle(){puzzle=findPuzzle();rows=[puzzle.start.toUpperCase()];current="";document.getElementById("startWord").textContent=puzzle.start.toUpperCase();document.getElementById("targetWord").textContent="?????";setHint("Change one letter from the word above.");draw()}
-function draw(){board.innerHTML="";for(let r=0;r<5;r++){const row=document.createElement("div");row.className="row"+(r===0?" start":"")+(r===4?" target":"")+(r===rows.length?" current":"");let word=r===0?rows[0]:(r===4?"":(rows[r]||""));if(r===rows.length&&r>0)word=current;
+function choosePuzzle(){puzzle=findPuzzle();rows=[];current="";document.getElementById("targetWord").textContent="?????";setHint("Enter any five-letter word to start.");draw()}
+function draw(){board.innerHTML="";for(let r=0;r<5;r++){const row=document.createElement("div");row.className="row"+(r===4?" target":"")+(r===rows.length?" current":"");let word=r===4?"":(rows[r]||"");if(r===rows.length&&r>0)word=current;
     for(let c=0;c<5;c++){const t=document.createElement("div");t.className="tile"+(word[c]?" filled":"");t.textContent=word[c]||"";
       if(r>0&&r<rows.length&&word.length===5){
         const target=puzzle.target.toLowerCase(),letter=word[c].toLowerCase();
@@ -74,6 +74,6 @@ async function loadDictionary(){
 document.addEventListener("keydown",e=>{if(document.getElementById("modal").classList.contains("show"))return;if(e.key==="Enter")press("ENTER");else if(e.key==="Backspace")press("BACKSPACE");else if(/^[a-zA-Z]$/.test(e.key))press(e.key.toUpperCase())});
 document.getElementById("newGame").onclick=()=>{document.getElementById("modal").classList.remove("show");if(gameReady)choosePuzzle()};
 document.getElementById("modalNew").onclick=()=>{document.getElementById("modal").classList.remove("show");if(gameReady)choosePuzzle()};
-document.getElementById("howTo").onclick=()=>alert("Start with the top five-letter word. Enter any five-letter word on each row. Every word must be in Wordy's dictionary. Use the letter colours as clues to find the green target.");
+document.getElementById("howTo").onclick=()=>alert("Enter any five-letter word to start. You can enter any five-letter word on each row. Every word must be in Wordy's dictionary. Use the letter colours as clues to find the hidden target.");
 makeKeyboard();document.getElementById("dictCount").textContent="…";loadDictionary();
 </script></body></html>
