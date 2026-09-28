@@ -1,113 +1,56 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#111827">
-<title>Wordy — Word Ladder</title>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111827"><title>Wordy — Word Ladder</title>
 <style>
-:root{--bg:#f6f7fb;--card:#fff;--text:#172033;--muted:#667085;--border:#d9dee8;--accent:#4f46e5;--good:#16a34a;--bad:#dc2626;--key:#e9edf4}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100vh}
-.wrap{width:min(480px,100%);margin:auto;padding:18px 14px 28px}
-header{text-align:center;margin:4px 0 16px}h1{font-size:38px;letter-spacing:-1.5px;margin:0;font-weight:800}h1 span{color:var(--accent)}.tag{color:var(--muted);margin:2px 0 0;font-size:14px}
-.card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:18px 14px 16px;box-shadow:0 8px 30px #1822300d}
-.info{display:flex;justify-content:space-between;align-items:center;margin:0 auto 15px;max-width:360px}.info div{text-align:center}.label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}.word{font-weight:800;font-size:18px;letter-spacing:2px}
-#board{width:min(300px,78vw);margin:0 auto;display:grid;grid-template-rows:repeat(5,1fr);gap:7px}
-.row{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}.tile{aspect-ratio:1;border:2px solid var(--border);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:clamp(23px,7vw,31px);font-weight:800;text-transform:uppercase;background:#fff;transition:.12s}
-.row.start .tile{background:#eef0ff;border-color:#c7c9ff;color:#3730a3}.row.target .tile{background:#ecfdf3;border-color:#bbf7d0;color:#166534}.row.current .tile{border-color:#aab2c3}.tile.filled{border-color:#8d96a8}.tile.flash{animation:shake .28s}@keyframes shake{25%{transform:translateX(-4px)}50%{transform:translateX(4px)}75%{transform:translateX(-3px)}}
-.controls{margin:16px auto 0;max-width:380px}.hint{text-align:center;color:var(--muted);font-size:13px;min-height:20px;margin-bottom:8px}.hint.error{color:var(--bad);font-weight:650}.hint.good{color:var(--good);font-weight:700}
-.keyboard{display:grid;gap:7px;margin-top:8px}.krow{display:flex;justify-content:center;gap:5px}.key{height:46px;min-width:30px;padding:0 8px;border:0;border-radius:7px;background:var(--key);color:var(--text);font-size:15px;font-weight:750;cursor:pointer;-webkit-tap-highlight-color:transparent}.key.wide{min-width:55px;font-size:12px}.key:active{transform:scale(.96);background:#dce2ec}
+:root{--bg:#f5f6fa;--card:#fff;--text:#172033;--muted:#667085;--border:#d8dde7;--accent:#5146e5;--good:#16a34a;--bad:#dc2626;--key:#e8ecf3}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100vh}.wrap{width:min(480px,100%);margin:auto;padding:18px 14px 28px}
+header{text-align:center;margin:3px 0 15px}h1{font-size:38px;letter-spacing:-1.5px;margin:0;font-weight:850}h1 span{color:var(--accent)}.tag{color:var(--muted);margin:1px 0 0;font-size:14px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:18px 14px 16px;box-shadow:0 8px 30px #1822300d}.info{display:flex;justify-content:space-between;align-items:center;margin:0 auto 15px;max-width:300px}.info div{text-align:center}.label{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}.word{font-weight:850;font-size:18px;letter-spacing:2px}
+#board{width:min(300px,78vw);margin:0 auto;display:grid;gap:7px}.row{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}.tile{aspect-ratio:1;border:2px solid var(--border);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:clamp(23px,7vw,31px);font-weight:850;text-transform:uppercase;background:#fff}.row.start .tile{background:#eef0ff;border-color:#c9caff;color:#3730a3}.row.target .tile{background:#ecfdf3;border-color:#b7efc9;color:#166534}.row.current .tile{border-color:#8d96a8}.tile.filled{border-color:#8d96a8}.tile.shake{animation:shake .28s}@keyframes shake{25%{transform:translateX(-4px)}50%{transform:translateX(4px)}75%{transform:translateX(-3px)}}
+.controls{margin:16px auto 0;max-width:380px}.hint{text-align:center;color:var(--muted);font-size:13px;min-height:20px;margin-bottom:8px}.hint.error{color:var(--bad);font-weight:700}.hint.good{color:var(--good);font-weight:700}
+.keyboard{display:grid;gap:7px;margin-top:8px}.krow{display:flex;justify-content:center;gap:5px}.key{height:45px;min-width:30px;padding:0 8px;border:0;border-radius:7px;background:var(--key);color:var(--text);font-size:15px;font-weight:750;cursor:pointer;-webkit-tap-highlight-color:transparent}.key.wide{min-width:54px;font-size:12px}.key:active{transform:scale(.96)}
 .actions{display:flex;justify-content:center;gap:8px;margin-top:13px}.action{border:1px solid var(--border);background:#fff;border-radius:10px;padding:9px 15px;font-weight:700;cursor:pointer;color:var(--text)}.action.primary{background:var(--accent);border-color:var(--accent);color:#fff}
-.modal{position:fixed;inset:0;background:#11182799;display:none;align-items:center;justify-content:center;padding:20px}.modal.show{display:flex}.modalbox{background:#fff;border-radius:20px;padding:25px;max-width:350px;width:100%;text-align:center;box-shadow:0 20px 60px #0003}.modalbox h2{margin:0 0 7px}.modalbox p{color:var(--muted);line-height:1.5}.score{font-size:34px;font-weight:850;color:var(--accent);margin:8px}
-footer{text-align:center;color:var(--muted);font-size:12px;margin-top:13px}
-@media(max-width:370px){.key{height:42px;min-width:26px;padding:0 6px}.key.wide{min-width:48px}}
-</style>
-</head>
-<body>
-<div class="wrap">
+.modal{position:fixed;inset:0;background:#11182799;display:none;align-items:center;justify-content:center;padding:20px}.modal.show{display:flex}.modalbox{background:#fff;border-radius:20px;padding:25px;max-width:350px;width:100%;text-align:center;box-shadow:0 20px 60px #0003}.modalbox h2{margin:0 0 7px}.modalbox p{color:var(--muted);line-height:1.5}.score{font-size:30px;font-weight:850;color:var(--accent);margin:8px}
+footer{text-align:center;color:var(--muted);font-size:12px;margin-top:13px}@media(max-width:370px){.key{height:42px;min-width:26px;padding:0 6px}.key.wide{min-width:48px}}
+</style></head>
+<body><div class="wrap">
 <header><h1>W<span>o</span>rdy</h1><p class="tag">Change one letter at a time.</p></header>
 <section class="card">
-  <div class="info">
-    <div><div class="label">Start</div><div class="word" id="startWord">COLD</div></div>
-    <div><div class="label">Target</div><div class="word" id="targetWord">WARM</div></div>
-  </div>
-  <div id="board" aria-label="Word ladder"></div>
-  <div class="controls">
-    <div id="hint" class="hint">Type a 5-letter word, then press Enter.</div>
-    <div id="keyboard" class="keyboard"></div>
-    <div class="actions"><button class="action" id="newGame">New game</button><button class="action primary" id="howTo">How to play</button></div>
-  </div>
-</section>
-<footer>Every step must be a real word and change exactly one letter.</footer>
-</div>
-<div class="modal" id="modal"><div class="modalbox"><h2 id="modalTitle">You got it!</h2><div class="score" id="modalScore"></div><p id="modalText"></p><button class="action primary" id="modalNew">Play again</button></div></div>
-
+<div class="info"><div><div class="label">Start</div><div class="word" id="startWord"></div></div><div><div class="label">Target</div><div class="word" id="targetWord"></div></div></div>
+<div id="board"></div>
+<div class="controls"><div id="hint" class="hint">Change one letter from the word above.</div><div id="keyboard" class="keyboard"></div>
+<div class="actions"><button class="action" id="newGame">New game</button><button class="action primary" id="howTo">How to play</button></div></div>
+</section><footer>5 letters • 5 rows • 3 words to find</footer></div>
+<div class="modal" id="modal"><div class="modalbox"><h2 id="modalTitle"></h2><div class="score" id="modalScore"></div><p id="modalText"></p><button class="action primary" id="modalNew">Play again</button></div></div>
 <script>
 const puzzles=[
- {start:"COLD",target:"WARM",path:["COLD","CORD","CARD","WARD","WARM"]},
- {start:"HEAD",target:"TAIL",path:["HEAD","HEAL","TEAL","TELL","TAIL"]},
- {start:"CATS",target:"DOGS",path:["CATS","COTS","DOTS","DOGS","DOGS"]},
- {start:"FIRE",target:"WIND",path:["FIRE","FINE","WINE","WIND","WIND"]},
- {start:"SAND",target:"WIND",path:["SAND","SEND","WEND","WIND","WIND"]},
- {start:"MIND",target:"WORD",path:["MIND","WIND","WOND","WORD","WORD"]},
- {start:"STONE",target:"MONEY",path:["STONE","SHONE","PHONE","PHONY","MONEY"]},
- {start:"PLANE",target:"GRAPE",path:["PLANE","PLACE","PEACE","GRACE","GRAPE"]}
+{start:"COLD",target:"WARM",path:["COLD","CORD","CARD","WARD","WARM"]},
+{start:"HEAD",target:"TAIL",path:["HEAD","HEAL","TEAL","TELL","TAIL"]},
+{start:"STONE",target:"MONEY",path:["STONE","SHONE","PHONE","PHONY","MONEY"]},
+{start:"PLANE",target:"GRAPE",path:["PLANE","PLACE","PEACE","GRACE","GRAPE"]},
+{start:"BOLD",target:"WOLF",path:["BOLD","BOLL","BELL","WELL","WOLF"]},
+{start:"FISH",target:"DISH",path:["FISH","FIST","DIST","DISH","DISH"]},
+{start:"LIGHT",target:"NIGHT",path:["LIGHT","MIGHT","RIGHT","NIGHT","NIGHT"]}
 ];
-// The game uses five rows: row 1 is the supplied word, row 5 is the target.
-// A solution may use the target early; the goal is simply to reach row 5.
-const validWords=new Set([
-"cold","cord","card","ward","warm","head","heal","teal","tell","tail",
-"cats","cots","dots","dogs","fire","fine","wine","wind","sand","send","wend",
-"mind","wond","word","stone","shone","phone","phony","money","plane","place",
-"peace","grace","grape","bake","bike","bile","file","fill","fall","ball","bald",
-"bold","told","toll","tool","fool","food","good","gold","golf","wolf","wall",
-"walk","talk","tall","mall","male","mile","mild","wild","will","well","bell",
-"belt","best","rest","rent","sent","scent","spent","sport","short","shirt",
-"light","might","night","right","sight","fight","fish","dish","dash","cash",
-"case","base","b ase"
-].map(x=>x.replace(/\s/g,"")));
-
-let puzzleIndex=-1,puzzle=null,rows=[],current="";
+const validWords=new Set(["cold","cord","card","ward","warm","head","heal","teal","tell","tail","stone","shone","phone","phony","money","plane","place","peace","grace","grape","bold","boll","bell","well","wolf","fish","fist","dist","dish","light","might","right","night","bake","bike","bile","file","fill","till","tall","talk","walk","wall","best","belt","felt","fell","fall","rest","rent","sent","send","sand","mind","mild","wild","will","wind","wine","fine","fire","gold","good","food","fool","tool","toll","told","cash","case","base"].map(x=>x.toLowerCase()));
+let puzzleIndex=-1,puzzle,rows=[],current="";
 const board=document.getElementById("board"),hint=document.getElementById("hint"),keyboard=document.getElementById("keyboard");
-const letters=["QWERTYUIOP","ASDFGHJKL","ZXCVBNM"];
-
-function choosePuzzle(){puzzleIndex=(puzzleIndex+1)%puzzles.length;puzzle=puzzles[puzzleIndex];rows=[puzzle.start];current="";document.getElementById("startWord").textContent=puzzle.start;document.getElementById("targetWord").textContent=puzzle.target;hint.className="hint";hint.textContent="Type a 5-letter word, then press Enter.";draw();}
-
-function draw(){
- board.innerHTML="";
- for(let r=0;r<5;r++){
-  const row=document.createElement("div");row.className="row"+(r===0?" start":"")+(r===4?" target":"")+(r===rows.length?" current":"");
-  const word=rows[r]|| (r===rows.length?current:"");
-  for(let c=0;c<5;c++){const t=document.createElement("div");t.className="tile"+(word[c]?" filled":"");t.textContent=word[c]||"";row.appendChild(t)}
-  board.appendChild(row);
- }
-}
-function setHint(msg,type=""){hint.textContent=msg;hint.className="hint "+type}
-function submit(){
- if(current.length!==5){setHint("You need five letters.","error");shake();return}
- const w=current.toLowerCase(),prev=rows[rows.length-1].toLowerCase();
- if(!validWords.has(w)){setHint("That's not in Wordy's word list.","error");shake();return}
- let changes=0;for(let i=0;i<5;i++)if(w[i]!==prev[i])changes++;
- if(changes!==1){setHint("Change exactly one letter.","error");shake();return}
- rows.push(w.toUpperCase());current="";
- if(w===puzzle.target.toLowerCase()){draw();setHint("Target reached!","good");setTimeout(showWin,250);return}
- if(rows.length===5){draw();setHint("Out of moves — try again.","error");setTimeout(showLose,250);return}
- setHint("Good move. Keep going!","good");draw();
-}
-function shake(){document.querySelectorAll(".row.current .tile").forEach(x=>{x.classList.remove("flash");void x.offsetWidth;x.classList.add("flash")})}
+function choosePuzzle(){puzzleIndex=(puzzleIndex+1)%puzzles.length;puzzle=puzzles[puzzleIndex];rows=[puzzle.start];current="";document.getElementById("startWord").textContent=puzzle.start;document.getElementById("targetWord").textContent=puzzle.target;setHint("Change one letter from the word above.");draw()}
+function draw(){board.innerHTML="";for(let r=0;r<5;r++){let row=document.createElement("div");row.className="row"+(r===0?" start":"")+(r===4?" target":"")+(r===rows.length?" current":"");let word=r===0?rows[0]:r===4?puzzle.target:(rows[r]||"");if(r===rows.length&&r>0)word=current;for(let c=0;c<5;c++){let t=document.createElement("div");t.className="tile"+(word[c]?" filled":"");t.textContent=word[c]||"";row.appendChild(t)}board.appendChild(row)}}
+function setHint(s,type=""){hint.textContent=s;hint.className="hint "+type}
+function changes(a,b){let n=0;for(let i=0;i<5;i++)if(a[i]!==b[i])n++;return n}
+function submit(){if(current.length!==5){setHint("You need five letters.","error");shake();return}let w=current.toLowerCase(),prev=rows[rows.length-1].toLowerCase();if(!validWords.has(w)){setHint("That's not in Wordy's word list.","error");shake();return}if(changes(prev,w)!==1){setHint("Change exactly one letter.","error");shake();return}
+rows.push(w.toUpperCase());current="";
+if(rows.length===4){if(changes(rows[3].toLowerCase(),puzzle.target.toLowerCase())===1){draw();setHint("Perfect! The green word is the finish.","good");setTimeout(win,250)}else{setHint("Not quite there. Find a word that leads to "+puzzle.target+".","error");draw()}}
+else{setHint("Good move. Keep going!","good");draw()}}
+function shake(){document.querySelectorAll(".row.current .tile").forEach(x=>{x.classList.remove("shake");void x.offsetWidth;x.classList.add("shake")})}
 function press(ch){if(ch==="ENTER")submit();else if(ch==="BACKSPACE")current=current.slice(0,-1);else if(current.length<5&&/^[A-Z]$/.test(ch))current+=ch;draw()}
-function makeKeyboard(){
- keyboard.innerHTML="";
- letters.forEach((line,i)=>{const r=document.createElement("div");r.className="krow";[...line].forEach(ch=>{const b=document.createElement("button");b.className="key";b.textContent=ch;b.onclick=()=>press(ch);r.appendChild(b)});if(i===2){const b=document.createElement("button");b.className="key wide";b.textContent="ENTER";b.onclick=()=>press("ENTER");r.prepend(b)}keyboard.appendChild(r)});
- const last=keyboard.lastChild;const b=document.createElement("button");b.className="key wide";b.textContent="⌫";b.onclick=()=>press("BACKSPACE");last.appendChild(b);
-}
-function showWin(){document.getElementById("modalTitle").textContent="You got it!";document.getElementById("modalScore").textContent=(rows.length-1)+" move"+(rows.length-1===1?"":"s");document.getElementById("modalText").textContent="You changed one letter at a time and reached "+puzzle.target+".";document.getElementById("modal").classList.add("show")}
-function showLose(){document.getElementById("modalTitle").textContent="So close!";document.getElementById("modalScore").textContent=puzzle.target;document.getElementById("modalText").textContent="The target word was "+puzzle.target+". Give another ladder a try.";document.getElementById("modal").classList.add("show")}
+function makeKeyboard(){keyboard.innerHTML="";["QWERTYUIOP","ASDFGHJKL","ZXCVBNM"].forEach((line,i)=>{let r=document.createElement("div");r.className="krow";if(i===2){let e=document.createElement("button");e.className="key wide";e.textContent="ENTER";e.onclick=()=>press("ENTER");r.appendChild(e)}[...line].forEach(ch=>{let b=document.createElement("button");b.className="key";b.textContent=ch;b.onclick=()=>press(ch);r.appendChild(b)});if(i===2){let b=document.createElement("button");b.className="key wide";b.textContent="⌫";b.onclick=()=>press("BACKSPACE");r.appendChild(b)}keyboard.appendChild(r)})}
+function win(){document.getElementById("modalTitle").textContent="You got it!";document.getElementById("modalScore").textContent="WORDY";document.getElementById("modalText").textContent="You built the ladder from "+puzzle.start+" to "+puzzle.target+".";document.getElementById("modal").classList.add("show")}
 document.addEventListener("keydown",e=>{if(document.getElementById("modal").classList.contains("show"))return;if(e.key==="Enter")press("ENTER");else if(e.key==="Backspace")press("BACKSPACE");else if(/^[a-zA-Z]$/.test(e.key))press(e.key.toUpperCase())});
-document.getElementById("newGame").onclick=()=>{document.getElementById("modal").classList.remove("show");choosePuzzle()};
-document.getElementById("modalNew").onclick=()=>{document.getElementById("modal").classList.remove("show");choosePuzzle()};
-document.getElementById("howTo").onclick=()=>alert("Wordy is a word ladder. Start with the first word and reach the target in five rows. Each new word must be five letters, a real word, and differ from the previous word by exactly ONE letter.");
+document.getElementById("newGame").onclick=()=>{document.getElementById("modal").classList.remove("show");choosePuzzle()};document.getElementById("modalNew").onclick=()=>{document.getElementById("modal").classList.remove("show");choosePuzzle()};
+document.getElementById("howTo").onclick=()=>alert("Start with the top word. Enter a five-letter word by changing exactly ONE letter. The green word at the bottom is the target.");
 makeKeyboard();choosePuzzle();
-</script>
-</body>
-</html>
+</script></body></html>
