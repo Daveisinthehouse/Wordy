@@ -16,11 +16,11 @@ header{text-align:center;margin:3px 0 15px}h1{font-size:38px;letter-spacing:-1.5
 footer{text-align:center;color:var(--muted);font-size:12px;margin-top:13px}@media(max-width:370px){.keyboard{gap:6px}.krow{gap:4px}.key{height:42px;padding:0 2px}}
 </style></head>
 <body><div class="wrap">
-<header><h1>W<span>o</span>rdy</h1><p class="tag">Change one letter at a time.</p></header>
+<header><h1>W<span>o</span>rdy</h1><p class="tag">Change the word to find the target.</p></header>
 <section class="card">
 <div class="info"><div><div class="label">Start</div><div class="word" id="startWord"></div></div><div><div class="label">Target</div><div class="word" id="targetWord"></div></div></div>
 <div id="board"></div>
-<div class="controls"><div id="hint" class="hint">Change one letter from the word above.</div><div id="keyboard" class="keyboard"></div>
+<div class="controls"><div id="hint" class="hint">Enter any five-letter word.</div><div id="keyboard" class="keyboard"></div>
 <div class="actions"><button class="action" id="newGame">New game</button><button class="action primary" id="howTo">How to play</button></div></div>
 </section><footer>5 letters • 5 rows • <span id="dictCount">…</span> words in the dictionary</footer></div>
 <div class="modal" id="modal"><div class="modalbox"><h2 id="modalTitle"></h2><div class="score" id="modalScore"></div><p id="modalText"></p><button class="action primary" id="modalNew">Play again</button></div></div>
@@ -54,13 +54,12 @@ function shake(){document.querySelectorAll(".row.current .tile").forEach(x=>{x.c
 function submit(){
   if(!gameReady)return;
   if(current.length!==5){setHint("You need five letters.","error");shake();return}
-  const w=current.toLowerCase(),prev=rows[rows.length-1].toLowerCase();
+  const w=current.toLowerCase();
   if(!validWords.has(w)){setHint("That word is not in the dictionary.","error");shake();return}
   if(rows.includes(w.toUpperCase())){setHint("You already used that word.","error");shake();return}
-  if(changes(prev,w)!==1){setHint("Change exactly one letter.","error");shake();return}
   rows.push(w.toUpperCase());current="";
   if(w===puzzle.target.toLowerCase()){draw();document.getElementById("targetWord").textContent=puzzle.target.toUpperCase();setHint("Perfect! You found the target.","good");setTimeout(win,250);return}
-  if(rows.length===4){if(changes(w,puzzle.target.toLowerCase())===1){draw();setHint("One more move will reach the target.","good")}else{setHint("That word is valid, but it does not reach the target.","error");rows.pop()}}else setHint("Good move. Keep going!","good");
+  if(rows.length===4&&changes(w,puzzle.target.toLowerCase())===1){draw();setHint("One more move will reach the target.","good")}else setHint("Good move. Keep going!","good");
   draw()
 }
 function press(ch){if(!gameReady)return;if(ch==="ENTER")submit();else if(ch==="BACKSPACE")current=current.slice(0,-1);else if(current.length<5&&/^[A-Z]$/.test(ch))current+=ch;draw()}
@@ -75,6 +74,6 @@ async function loadDictionary(){
 document.addEventListener("keydown",e=>{if(document.getElementById("modal").classList.contains("show"))return;if(e.key==="Enter")press("ENTER");else if(e.key==="Backspace")press("BACKSPACE");else if(/^[a-zA-Z]$/.test(e.key))press(e.key.toUpperCase())});
 document.getElementById("newGame").onclick=()=>{document.getElementById("modal").classList.remove("show");if(gameReady)choosePuzzle()};
 document.getElementById("modalNew").onclick=()=>{document.getElementById("modal").classList.remove("show");if(gameReady)choosePuzzle()};
-document.getElementById("howTo").onclick=()=>alert("Start with the top five-letter word. Enter another five-letter word by changing exactly ONE letter. Every word must be in Wordy's dictionary. Reach the green target.");
+document.getElementById("howTo").onclick=()=>alert("Start with the top five-letter word. Enter any five-letter word on each row. Every word must be in Wordy's dictionary. Use the letter colours as clues to find the green target.");
 makeKeyboard();document.getElementById("dictCount").textContent="…";loadDictionary();
 </script></body></html>
