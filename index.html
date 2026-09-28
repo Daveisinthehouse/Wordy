@@ -41,7 +41,7 @@ function findPuzzle(){
   }
   return{start:"cold",target:"warm",path:["cold","cord","card","ward","warm"]}
 }
-function choosePuzzle(){puzzle=findPuzzle();rows=[puzzle.start.toUpperCase()];current="";document.getElementById("startWord").textContent=puzzle.start.toUpperCase();document.getElementById("targetWord").textContent=puzzle.target.toUpperCase();setHint("Change one letter from the word above.");draw()}
+function choosePuzzle(){puzzle=findPuzzle();rows=[puzzle.start.toUpperCase()];current="";document.getElementById("startWord").textContent=puzzle.start.toUpperCase();document.getElementById("targetWord").textContent="?????";setHint("Change one letter from the word above.");draw()}
 function draw(){board.innerHTML="";for(let r=0;r<5;r++){const row=document.createElement("div");row.className="row"+(r===0?" start":"")+(r===4?" target":"")+(r===rows.length?" current":"");let word=r===0?rows[0]:(r===4?"":(rows[r]||""));if(r===rows.length&&r>0)word=current;
     for(let c=0;c<5;c++){const t=document.createElement("div");t.className="tile"+(word[c]?" filled":"");t.textContent=word[c]||"";
       if(r>0&&r<rows.length&&word.length===5){
