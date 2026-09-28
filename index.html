@@ -22,7 +22,7 @@ footer{text-align:center;color:var(--muted);font-size:12px;margin-top:13px}@medi
 <div id="board"></div>
 <div class="controls"><div id="hint" class="hint">Change one letter from the word above.</div><div id="keyboard" class="keyboard"></div>
 <div class="actions"><button class="action" id="newGame">New game</button><button class="action primary" id="howTo">How to play</button></div></div>
-</section><footer>5 letters • 5 rows • 3 words to find</footer></div>
+</section><footer>5 letters • 5 rows • <span id="dictCount">…</span> words in the dictionary</footer></div>
 <div class="modal" id="modal"><div class="modalbox"><h2 id="modalTitle"></h2><div class="score" id="modalScore"></div><p id="modalText"></p><button class="action primary" id="modalNew">Play again</button></div></div>
 <script>
 const WORD_SOURCE="https://raw.githubusercontent.com/BartMassey/wordle5/main/words-alpha.txt";
