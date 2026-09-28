@@ -8,7 +8,7 @@
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100vh}.wrap{width:min(480px,100%);margin:auto;padding:18px 14px 28px}
 header{text-align:center;margin:3px 0 15px}h1{font-size:38px;letter-spacing:-1.5px;margin:0;font-weight:850}h1 span{color:var(--accent)}.tag{color:var(--muted);margin:1px 0 0;font-size:14px}
 .card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:18px 14px 16px;box-shadow:0 8px 30px #1822300d}.info{display:flex;justify-content:space-between;align-items:center;margin:0 auto 15px;max-width:300px}.info div{text-align:center}.label{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}.word{font-weight:850;font-size:18px;letter-spacing:2px}
-#board{width:min(300px,78vw);margin:0 auto;display:grid;gap:7px}.row{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}.tile{aspect-ratio:1;border:2px solid var(--border);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:clamp(23px,7vw,31px);font-weight:850;text-transform:uppercase;background:#fff}.row.start .tile{background:#eef0ff;border-color:#c9caff;color:#3730a3}.row.target .tile{background:#ecfdf3;border-color:#b7efc9;color:#166534}.row.current .tile{border-color:#8d96a8}.tile.filled{border-color:#8d96a8}.tile.shake{animation:shake .28s}@keyframes shake{25%{transform:translateX(-4px)}50%{transform:translateX(4px)}75%{transform:translateX(-3px)}}
+#board{width:min(300px,78vw);margin:0 auto;display:grid;gap:7px}.row{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}.tile{aspect-ratio:1;border:2px solid var(--border);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:clamp(23px,7vw,31px);font-weight:850;text-transform:uppercase;background:#fff}.row.start .tile{background:#eef0ff;border-color:#c9caff;color:#3730a3}.row.target .tile{background:#ecfdf3;border-color:#b7efc9;color:#166534}.row.current .tile{border-color:#8d96a8}.tile.filled{border-color:#8d96a8}.tile.green{background:#16a34a!important;border-color:#15803d!important;color:#fff!important}.tile.yellow{background:#facc15!important;border-color:#eab308!important;color:#422006!important}.tile.shake{animation:shake .28s}@keyframes shake{25%{transform:translateX(-4px)}50%{transform:translateX(4px)}75%{transform:translateX(-3px)}}
 .controls{margin:16px auto 0;max-width:380px}.hint{text-align:center;color:var(--muted);font-size:13px;min-height:20px;margin-bottom:8px}.hint.error{color:var(--bad);font-weight:700}.hint.good{color:var(--good);font-weight:700}
 .keyboard{display:grid;gap:7px;margin-top:8px}.krow{display:flex;justify-content:center;gap:5px}.key{height:45px;min-width:30px;padding:0 8px;border:0;border-radius:7px;background:var(--key);color:var(--text);font-size:15px;font-weight:750;cursor:pointer;-webkit-tap-highlight-color:transparent}.key.wide{min-width:54px;font-size:12px}.key:active{transform:scale(.96)}
 .actions{display:flex;justify-content:center;gap:8px;margin-top:13px}.action{border:1px solid var(--border);background:#fff;border-radius:10px;padding:9px 15px;font-weight:700;cursor:pointer;color:var(--text)}.action.primary{background:var(--accent);border-color:var(--accent);color:#fff}
@@ -42,7 +42,14 @@ function findPuzzle(){
   return{start:"cold",target:"warm",path:["cold","cord","card","ward","warm"]}
 }
 function choosePuzzle(){puzzle=findPuzzle();rows=[puzzle.start.toUpperCase()];current="";document.getElementById("startWord").textContent=puzzle.start.toUpperCase();document.getElementById("targetWord").textContent=puzzle.target.toUpperCase();setHint("Change one letter from the word above.");draw()}
-function draw(){board.innerHTML="";for(let r=0;r<5;r++){const row=document.createElement("div");row.className="row"+(r===0?" start":"")+(r===4?" target":"")+(r===rows.length?" current":"");let word=r===0?rows[0]:r===4?puzzle.target.toUpperCase():(rows[r]||"");if(r===rows.length&&r>0)word=current;for(let c=0;c<5;c++){const t=document.createElement("div");t.className="tile"+(word[c]?" filled":"");t.textContent=word[c]||"";row.appendChild(t)}board.appendChild(row)}}
+function draw(){board.innerHTML="";for(let r=0;r<5;r++){const row=document.createElement("div");row.className="row"+(r===0?" start":"")+(r===4?" target":"")+(r===rows.length?" current":"");let word=r===0?rows[0]:(r===4?"":(rows[r]||""));if(r===rows.length&&r>0)word=current;
+    for(let c=0;c<5;c++){const t=document.createElement("div");t.className="tile"+(word[c]?" filled":"");t.textContent=word[c]||"";
+      if(r>0&&r<rows.length&&word.length===5){
+        const target=puzzle.target.toLowerCase(),letter=word[c].toLowerCase();
+        if(letter===target[c])t.classList.add("green");
+        else if(target.includes(letter))t.classList.add("yellow");
+      }
+      row.appendChild(t)}board.appendChild(row)}}
 function shake(){document.querySelectorAll(".row.current .tile").forEach(x=>{x.classList.remove("shake");void x.offsetWidth;x.classList.add("shake")})}
 function submit(){
   if(!gameReady)return;
@@ -52,7 +59,7 @@ function submit(){
   if(rows.includes(w.toUpperCase())){setHint("You already used that word.","error");shake();return}
   if(changes(prev,w)!==1){setHint("Change exactly one letter.","error");shake();return}
   rows.push(w.toUpperCase());current="";
-  if(w===puzzle.target.toLowerCase()){draw();setHint("Perfect! You found the target.","good");setTimeout(win,250);return}
+  if(w===puzzle.target.toLowerCase()){draw();document.getElementById("targetWord").textContent=puzzle.target.toUpperCase();setHint("Perfect! You found the target.","good");setTimeout(win,250);return}
   if(rows.length===4){if(changes(w,puzzle.target.toLowerCase())===1){draw();setHint("One more move will reach the target.","good")}else{setHint("That word is valid, but it does not reach the target.","error");rows.pop()}}else setHint("Good move. Keep going!","good");
   draw()
 }
