@@ -25,31 +25,49 @@ footer{text-align:center;color:var(--muted);font-size:12px;margin-top:13px}@medi
 </section><footer>5 letters • 5 rows • 3 words to find</footer></div>
 <div class="modal" id="modal"><div class="modalbox"><h2 id="modalTitle"></h2><div class="score" id="modalScore"></div><p id="modalText"></p><button class="action primary" id="modalNew">Play again</button></div></div>
 <script>
-const puzzles=[
-{start:"COLD",target:"WARM",path:["COLD","CORD","CARD","WARD","WARM"]},
-{start:"HEAD",target:"TAIL",path:["HEAD","HEAL","TEAL","TELL","TAIL"]},
-{start:"STONE",target:"MONEY",path:["STONE","SHONE","PHONE","PHONY","MONEY"]},
-{start:"PLANE",target:"GRAPE",path:["PLANE","PLACE","PEACE","GRACE","GRAPE"]},
-{start:"BOLD",target:"WOLF",path:["BOLD","BOLL","BELL","WELL","WOLF"]},
-{start:"LIGHT",target:"NIGHT",path:["LIGHT","MIGHT","RIGHT","SIGHT","NIGHT"]}
-];
-const validWords=new Set(["cold","cord","card","ward","warm","head","heal","teal","tell","tail","stone","shone","phone","phony","money","plane","place","peace","grace","grape","bold","boll","bell","well","wolf","fish","fist","dist","dish","light","might","right","night","bake","bike","bile","file","fill","till","tall","talk","walk","wall","best","belt","felt","fell","fall","rest","rent","sent","send","sand","mind","mild","wild","will","wind","wine","fine","fire","gold","good","food","fool","tool","toll","told","cash","case","base"].map(x=>x.toLowerCase()));
-let puzzleIndex=-1,puzzle,rows=[],current="";
+const WORD_SOURCE="https://raw.githubusercontent.com/BartMassey/wordle5/main/words-alpha.txt";
+const FALLBACK=["cold","cord","card","ward","warm","head","heal","teal","tell","tail","plane","place","peace","grace","grape","light","might","right","sight","night","bake","bike","bile","file","fill","till","tall","talk","walk","wall","best","belt","felt","fell","fall","rest","rent","sent","send","sand","mind","mild","wild","will","wind","wine","fine","fire","gold","good","food","fool","tool","toll","told","cash","case","base"];
+let validWords=new Set(),wordList=[],puzzle=null,rows=[],current="",gameReady=false;
 const board=document.getElementById("board"),hint=document.getElementById("hint"),keyboard=document.getElementById("keyboard");
-function choosePuzzle(){puzzleIndex=(puzzleIndex+1)%puzzles.length;puzzle=puzzles[puzzleIndex];rows=[puzzle.start];current="";document.getElementById("startWord").textContent=puzzle.start;document.getElementById("targetWord").textContent=puzzle.target;setHint("Change one letter from the word above.");draw()}
-function draw(){board.innerHTML="";for(let r=0;r<5;r++){let row=document.createElement("div");row.className="row"+(r===0?" start":"")+(r===4?" target":"")+(r===rows.length?" current":"");let word=r===0?rows[0]:r===4?puzzle.target:(rows[r]||"");if(r===rows.length&&r>0)word=current;for(let c=0;c<5;c++){let t=document.createElement("div");t.className="tile"+(word[c]?" filled":"");t.textContent=word[c]||"";row.appendChild(t)}board.appendChild(row)}}
 function setHint(s,type=""){hint.textContent=s;hint.className="hint "+type}
 function changes(a,b){let n=0;for(let i=0;i<5;i++)if(a[i]!==b[i])n++;return n}
-function submit(){if(current.length!==5){setHint("You need five letters.","error");shake();return}let w=current.toLowerCase(),prev=rows[rows.length-1].toLowerCase();if(!validWords.has(w)){setHint("That's not in Wordy's word list.","error");shake();return}if(changes(prev,w)!==1){setHint("Change exactly one letter.","error");shake();return}
-rows.push(w.toUpperCase());current="";
-if(rows.length===4){if(changes(rows[3].toLowerCase(),puzzle.target.toLowerCase())===1){draw();setHint("Perfect! The green word is the finish.","good");setTimeout(win,250)}else{setHint("Not quite there. Find a word that leads to "+puzzle.target+".","error");draw()}}
-else{setHint("Good move. Keep going!","good");draw()}}
+function neighbours(word){const out=[],chars=word.split("");for(let i=0;i<5;i++){const old=chars[i];for(let c=97;c<=122;c++){const ch=String.fromCharCode(c);if(ch===old)continue;chars[i]=ch;const candidate=chars.join("");if(validWords.has(candidate))out.push(candidate)}chars[i]=old}return out}
+function findPuzzle(){
+  for(let attempt=0;attempt<80;attempt++){
+    const start=wordList[Math.floor(Math.random()*wordList.length)];if(!start)continue;
+    const parent=new Map([[start,null]]),depth=new Map([[start,0]]);let queue=[start],targets=[];
+    while(queue.length){const w=queue.shift(),d=depth.get(w);if(d===4){targets.push(w);continue}for(const n of neighbours(w)){if(!depth.has(n)){depth.set(n,d+1);parent.set(n,w);queue.push(n)}}if(targets.length>=20)break}
+    if(targets.length){const target=targets[Math.floor(Math.random()*targets.length)],path=[];let x=target;while(x){path.push(x);x=parent.get(x)}path.reverse();if(path.length===5)return{start,target,path}}
+  }
+  return{start:"cold",target:"warm",path:["cold","cord","card","ward","warm"]}
+}
+function choosePuzzle(){puzzle=findPuzzle();rows=[puzzle.start.toUpperCase()];current="";document.getElementById("startWord").textContent=puzzle.start.toUpperCase();document.getElementById("targetWord").textContent=puzzle.target.toUpperCase();setHint("Change one letter from the word above.");draw()}
+function draw(){board.innerHTML="";for(let r=0;r<5;r++){const row=document.createElement("div");row.className="row"+(r===0?" start":"")+(r===4?" target":"")+(r===rows.length?" current":"");let word=r===0?rows[0]:r===4?puzzle.target.toUpperCase():(rows[r]||"");if(r===rows.length&&r>0)word=current;for(let c=0;c<5;c++){const t=document.createElement("div");t.className="tile"+(word[c]?" filled":"");t.textContent=word[c]||"";row.appendChild(t)}board.appendChild(row)}}
 function shake(){document.querySelectorAll(".row.current .tile").forEach(x=>{x.classList.remove("shake");void x.offsetWidth;x.classList.add("shake")})}
-function press(ch){if(ch==="ENTER")submit();else if(ch==="BACKSPACE")current=current.slice(0,-1);else if(current.length<5&&/^[A-Z]$/.test(ch))current+=ch;draw()}
-function makeKeyboard(){keyboard.innerHTML="";["QWERTYUIOP","ASDFGHJKL","ZXCVBNM"].forEach((line,i)=>{let r=document.createElement("div");r.className="krow";if(i===2){let e=document.createElement("button");e.className="key wide";e.textContent="ENTER";e.onclick=()=>press("ENTER");r.appendChild(e)}[...line].forEach(ch=>{let b=document.createElement("button");b.className="key";b.textContent=ch;b.onclick=()=>press(ch);r.appendChild(b)});if(i===2){let b=document.createElement("button");b.className="key wide";b.textContent="⌫";b.onclick=()=>press("BACKSPACE");r.appendChild(b)}keyboard.appendChild(r)})}
-function win(){document.getElementById("modalTitle").textContent="You got it!";document.getElementById("modalScore").textContent="WORDY";document.getElementById("modalText").textContent="You built the ladder from "+puzzle.start+" to "+puzzle.target+".";document.getElementById("modal").classList.add("show")}
+function submit(){
+  if(!gameReady)return;
+  if(current.length!==5){setHint("You need five letters.","error");shake();return}
+  const w=current.toLowerCase(),prev=rows[rows.length-1].toLowerCase();
+  if(!validWords.has(w)){setHint("That word is not in the dictionary.","error");shake();return}
+  if(rows.includes(w.toUpperCase())){setHint("You already used that word.","error");shake();return}
+  if(changes(prev,w)!==1){setHint("Change exactly one letter.","error");shake();return}
+  rows.push(w.toUpperCase());current="";
+  if(w===puzzle.target.toLowerCase()){draw();setHint("Perfect! You found the target.","good");setTimeout(win,250);return}
+  if(rows.length===4){if(changes(w,puzzle.target.toLowerCase())===1){draw();setHint("One more move will reach the target.","good")}else{setHint("That word is valid, but it does not reach the target.","error");rows.pop()}}else setHint("Good move. Keep going!","good");
+  draw()
+}
+function press(ch){if(!gameReady)return;if(ch==="ENTER")submit();else if(ch==="BACKSPACE")current=current.slice(0,-1);else if(current.length<5&&/^[A-Z]$/.test(ch))current+=ch;draw()}
+function makeKeyboard(){keyboard.innerHTML="";["QWERTYUIOP","ASDFGHJKL","ZXCVBNM"].forEach((line,i)=>{const r=document.createElement("div");r.className="krow";if(i===2){const e=document.createElement("button");e.className="key wide";e.textContent="ENTER";e.onclick=()=>press("ENTER");r.appendChild(e)}[...line].forEach(ch=>{const b=document.createElement("button");b.className="key";b.textContent=ch;b.onclick=()=>press(ch);r.appendChild(b)});if(i===2){const b=document.createElement("button");b.className="key wide";b.textContent="⌫";b.onclick=()=>press("BACKSPACE");r.appendChild(b)}keyboard.appendChild(r)})}
+function win(){document.getElementById("modalTitle").textContent="You got it!";document.getElementById("modalScore").textContent="WORDY";document.getElementById("modalText").textContent="You built the ladder from "+puzzle.start.toUpperCase()+" to "+puzzle.target.toUpperCase()+".";document.getElementById("modal").classList.add("show")}
+async function loadDictionary(){
+  setHint("Loading the word dictionary…");
+  try{const cached=localStorage.getItem("wordy-5-letter-dictionary");if(cached){const words=JSON.parse(cached);if(Array.isArray(words)&&words.length>10000)wordList=words}}catch(e){}
+  if(wordList.length<10000){try{const response=await fetch(WORD_SOURCE,{cache:"force-cache"});if(!response.ok)throw new Error("Dictionary request failed");const text=await response.text();wordList=[...new Set(text.split(/\r?\n/).map(w=>w.trim().toLowerCase()).filter(w=>/^[a-z]{5}$/.test(w)))];try{localStorage.setItem("wordy-5-letter-dictionary",JSON.stringify(wordList))}catch(e){}}catch(e){wordList=[...new Set(FALLBACK)];setHint("Large dictionary could not load, so the built-in list is being used.","error")}}
+  validWords=new Set(wordList);gameReady=true;document.getElementById("dictCount").textContent=wordList.length.toLocaleString();choosePuzzle()
+}
 document.addEventListener("keydown",e=>{if(document.getElementById("modal").classList.contains("show"))return;if(e.key==="Enter")press("ENTER");else if(e.key==="Backspace")press("BACKSPACE");else if(/^[a-zA-Z]$/.test(e.key))press(e.key.toUpperCase())});
-document.getElementById("newGame").onclick=()=>{document.getElementById("modal").classList.remove("show");choosePuzzle()};document.getElementById("modalNew").onclick=()=>{document.getElementById("modal").classList.remove("show");choosePuzzle()};
-document.getElementById("howTo").onclick=()=>alert("Start with the top word. Enter a five-letter word by changing exactly ONE letter. The green word at the bottom is the target.");
-makeKeyboard();choosePuzzle();
+document.getElementById("newGame").onclick=()=>{document.getElementById("modal").classList.remove("show");if(gameReady)choosePuzzle()};
+document.getElementById("modalNew").onclick=()=>{document.getElementById("modal").classList.remove("show");if(gameReady)choosePuzzle()};
+document.getElementById("howTo").onclick=()=>alert("Start with the top five-letter word. Enter another five-letter word by changing exactly ONE letter. Every word must be in Wordy's dictionary. Reach the green target.");
+makeKeyboard();document.getElementById("dictCount").textContent="…";loadDictionary();
 </script></body></html>
