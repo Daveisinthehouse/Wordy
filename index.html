@@ -42,7 +42,7 @@ function findPuzzle(){
   return{start:"cold",target:"warm",path:["cold","cord","card","ward","warm"]}
 }
 function choosePuzzle(){puzzle=findPuzzle();rows=[];current="";document.getElementById("targetWord").textContent="?????";setHint("Enter any five-letter word to start.");draw()}
-function draw(){board.innerHTML="";for(let r=0;r<5;r++){const row=document.createElement("div");row.className="row"+(r===4?" target":"")+(r===rows.length?" current":"");let word=r===4?"":(rows[r]||"");if(r===rows.length&&r>0)word=current;
+function draw(){board.innerHTML="";for(let r=0;r<5;r++){const row=document.createElement("div");row.className="row"+(r===4?" target":"")+(r===rows.length?" current":"");let word=r===4?"":(rows[r]||"");if(r===rows.length)word=current;
     for(let c=0;c<5;c++){const t=document.createElement("div");t.className="tile"+(word[c]?" filled":"");t.textContent=word[c]||"";
       if(r>0&&r<rows.length&&word.length===5){
         const target=puzzle.target.toLowerCase(),letter=word[c].toLowerCase();
@@ -64,7 +64,7 @@ function submit(){
 }
 function press(ch){if(!gameReady)return;if(ch==="ENTER")submit();else if(ch==="BACKSPACE")current=current.slice(0,-1);else if(current.length<5&&/^[A-Z]$/.test(ch))current+=ch;draw()}
 function makeKeyboard(){keyboard.innerHTML="";["QWERTYUIOP","ASDFGHJKL","ZXCVBNM"].forEach((line,i)=>{const r=document.createElement("div");r.className="krow";if(i===2){const e=document.createElement("button");e.className="key wide";e.textContent="ENTER";e.onclick=()=>press("ENTER");r.appendChild(e)}[...line].forEach(ch=>{const b=document.createElement("button");b.className="key";b.textContent=ch;b.onclick=()=>press(ch);r.appendChild(b)});if(i===2){const b=document.createElement("button");b.className="key wide";b.textContent="⌫";b.onclick=()=>press("BACKSPACE");r.appendChild(b)}keyboard.appendChild(r)})}
-function win(){document.getElementById("modalTitle").textContent="You got it!";document.getElementById("modalScore").textContent="WORDY";document.getElementById("modalText").textContent="You built the ladder from "+puzzle.start.toUpperCase()+" to "+puzzle.target.toUpperCase()+".";document.getElementById("modal").classList.add("show")}
+function win(){document.getElementById("modalTitle").textContent="You got it!";document.getElementById("modalScore").textContent="WORDY";document.getElementById("modalText").textContent="You found the hidden target: "+puzzle.target.toUpperCase()+".";document.getElementById("modal").classList.add("show")}
 async function loadDictionary(){
   setHint("Loading the word dictionary…");
   try{const cached=localStorage.getItem("wordy-5-letter-dictionary");if(cached){const words=JSON.parse(cached);if(Array.isArray(words)&&words.length>10000)wordList=words}}catch(e){}
